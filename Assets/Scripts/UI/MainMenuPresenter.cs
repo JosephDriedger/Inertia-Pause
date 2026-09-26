@@ -16,9 +16,12 @@ public class MainMenuPresenter : MonoBehaviour
     private const string FIRST_LEVEL_ENVIRONMENT = "1-promenade";
     private const string NORMAL_FIRST_LEVEL_SCENARIO_ASSETS = "1-promenade-easy";
     private const string HARD_FIRST_LEVEL_SCENARIO_ASSETS = "1-promenade-hard";
+    private const string GAMEPAD_START_TEXT_FORMAT = "Press {0} to Begin";
 
     private AdditiveSceneManager _sceneManager;
     private PlayerActions _inputActions;
+    private MenuFocus _focus;
+    private string _keyboardStartText;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -56,10 +59,25 @@ public class MainMenuPresenter : MonoBehaviour
         _view.OptionsButton.OnHover += ChangeHint;
         _view.ExitButton.OnHover += ChangeHint;
 
+        _focus = MenuFocus.Attach(_view.gameObject, _view.ContinueButton.Button, _view.NewGameButton.Button);
+
+        _keyboardStartText = _view.StartText.text;
+        UpdateStartText();
+
         _inputActions = new PlayerActions();
         _inputActions.UI.Click.performed += GoToMainMenu;
         _inputActions.UI.Submit.performed += GoToMainMenu;
+        _inputActions.UI.Cancel.performed += OnCancelPerformed;
         _inputActions.Enable();
+    }
+
+    private void Update()
+    {
+        // The prompt depends on the controls in use, and a controller can be plugged in at any time.
+        if (_view.StartScreen.activeInHierarchy)
+        {
+            UpdateStartText();
+        }
     }
 
     public void OpenMenu()
@@ -80,6 +98,27 @@ public class MainMenuPresenter : MonoBehaviour
         _view.DescriptionText.text = description;
     }
 
+    private void UpdateStartText()
+    {
+        string text = InputDeviceMonitor.IsGamepad
+            ? string.Format(GAMEPAD_START_TEXT_FORMAT, ControlPromptLabels.GamepadSubmitLabel)
+            : _keyboardStartText;
+
+        if (_view.StartText.text != text)
+        {
+            _view.StartText.text = text;
+        }
+    }
+
+    // Back out of the difficulty popup.
+    private void OnCancelPerformed(CallbackContext _)
+    {
+        if (_view.DifficultyPopup.activeInHierarchy)
+        {
+            OnNewGamePopupBackClicked();
+        }
+    }
+
     private void GoToMainMenu(CallbackContext _)
     {
         _view.MainMenuScreen.SetActive(true);
@@ -98,6 +137,7 @@ public class MainMenuPresenter : MonoBehaviour
     {
         _view.DifficultyPopup.SetActive(true);
         _view.BottomBar.SetActive(false);
+        _focus.OpenPopup(_view.DifficultyPopup, _view.NormalDifficultyButton.Button);
     }
 
     private void OnNewGamePopupNormalClicked()
@@ -114,6 +154,7 @@ public class MainMenuPresenter : MonoBehaviour
     {
         _view.DifficultyPopup.SetActive(false);
         _view.BottomBar.SetActive(true);
+        _focus.ClosePopup();
     }
 
     private void OnScenarioSelectClicked()

@@ -30,7 +30,7 @@ MonoBehaviour:
       you are sure all the enemies will die and all allies will live, unpause time
       and see what happens!'
     Image: {fileID: 21300000, guid: af0e484be8d86474380ed7999a7751d0, type: 3}
-  - Content: You can press TAB while hovering over any interactable object for a
+  - Content: You can press {Ingame/ContextualHelp} while hovering over any interactable object for a
       description on what you can do with the object and what will happen when time
       is unpaused. Good luck!
     Image: {fileID: 21300000, guid: af0e484be8d86474380ed7999a7751d0, type: 3}

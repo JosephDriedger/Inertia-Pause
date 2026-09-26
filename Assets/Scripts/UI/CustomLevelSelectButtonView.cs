@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CustomLevelSelectButtonView : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, ISelectHandler
+public class CustomLevelSelectButtonView : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, ISelectHandler, ISubmitHandler
 {
     public Action<ScenarioInfo, ScenarioInfo> OnHoverLevel;
     public Action<ScenarioInfo, ScenarioInfo> OnConfirmLevel;
@@ -26,6 +26,17 @@ public class CustomLevelSelectButtonView : MonoBehaviour, IPointerEnterHandler, 
     }
 
     public void OnPointerClick(PointerEventData eventData)
+    {
+        ConfirmLevel();
+    }
+
+    // Lets a gamepad (or the keyboard) confirm the selected level.
+    public void OnSubmit(BaseEventData eventData)
+    {
+        ConfirmLevel();
+    }
+
+    private void ConfirmLevel()
     {
         OnConfirmLevel?.Invoke(_normalScenarioInfo, _hardScenarioInfo);
         SFXPlayer.Instance.Play(SfxId.UIClick);

@@ -23,6 +23,7 @@ public class CreditsPresenter : MonoBehaviour
         if (_view.BackButton != null)
         {
             _view.BackButton.Button.onClick.AddListener(CloseMenu);
+            MenuFocus.Attach(_view.gameObject, _view.BackButton.Button);
         }
 
         _slideDelay = new (_showSlideDuration);

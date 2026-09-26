@@ -20,6 +20,8 @@ public class LevelSelectPresenter : MonoBehaviour
     private const string NO_RECORD_FORMAT = "{0} Best Record: Incomplete";
 
     private AdditiveSceneManager _sceneManager;
+    private PlayerActions _inputActions;
+    private MenuFocus _focus;
 
     private ScenarioInfo _normalScenarioToBeLoaded;
     private ScenarioInfo _hardScenarioToBeLoaded;
@@ -47,18 +49,43 @@ public class LevelSelectPresenter : MonoBehaviour
         _view.DifficultyBackButton.Button.onClick.AddListener(CloseDifficultySelect);
         _view.NormalDifficultyButton.Button.onClick.AddListener(LoadNormalScenario);
         _view.HardDifficultyButton.Button.onClick.AddListener(LoadHardScenario);
+
+        // Gamepad focus starts on the first level, then the back button.
+        Selectable[] defaultCandidates = _view.LevelSelectButtons
+            .Select(levelButton => (Selectable)levelButton.Button)
+            .Append(_view.BackButton.Button)
+            .ToArray();
+        _focus = MenuFocus.Attach(_view.gameObject, defaultCandidates);
+
+        _inputActions = new PlayerActions();
+        _inputActions.UI.Cancel.performed += _ => OnCancelPerformed();
     }
 
     public void OpenMenu()
     {
         _view.gameObject.SetActive(true);
         _view.DifficultyPopup.gameObject.SetActive(false);
+        _inputActions.UI.Enable();
     }
 
     public void CloseMenu()
     {
         _view.gameObject.SetActive(false);
+        _inputActions.UI.Disable();
         OnMenuClose?.Invoke();
+    }
+
+    // Back out of the difficulty popup first, then the menu.
+    private void OnCancelPerformed()
+    {
+        if (_view.DifficultyPopup.activeInHierarchy)
+        {
+            CloseDifficultySelect();
+        }
+        else
+        {
+            CloseMenu();
+        }
     }
 
     private void LoadNormalScenario()
@@ -118,11 +145,13 @@ public class LevelSelectPresenter : MonoBehaviour
     private void OpenDifficultySelect()
     {
         _view.DifficultyPopup.gameObject.SetActive(true);
+        _focus.OpenPopup(_view.DifficultyPopup, _view.NormalDifficultyButton.Button);
     }
 
     private void CloseDifficultySelect()
     {
         _view.DifficultyPopup.gameObject.SetActive(false);
+        _focus.ClosePopup();
     }
 
     private void LoadBestRecord(ScenarioInfo normalScenarioInfo, ScenarioInfo hardScenarioInfo)

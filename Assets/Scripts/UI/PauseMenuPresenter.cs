@@ -44,6 +44,8 @@ public class PauseMenuPresenter : MonoBehaviour
         _gameManager.OnPauseMenuOpen += OpenMenu;
 
         // UI
+        MenuFocus.Attach(_view.gameObject, _view.ResumeButton.Button);
+
         _inputActions = new PlayerActions();
         _inputActions.UI.Cancel.performed += _ => OnResumePressed();
         _inputActions.UI.Navigate.performed += _ =>

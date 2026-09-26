@@ -15,6 +15,8 @@ public class ReviewPanelPresenter : MonoBehaviour
     private const string CAMERA_NUMBER_FORMAT = "{0}/{1}";
     private int _numberOfCameras;
 
+    private PlayerActions _inputActions;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -31,16 +33,23 @@ public class ReviewPanelPresenter : MonoBehaviour
 
         _replayCameraManager.OnReplayStart += OnReplayStart;
         _replayCameraManager.OnCameraChange += OnCameraChange;
+
+        MenuFocus.Attach(_view.gameObject, _view.NextButton.Button, _view.BackButton.Button);
+
+        _inputActions = new PlayerActions();
+        _inputActions.UI.Cancel.performed += _ => CloseMenu();
     }
 
     public void OpenMenu()
     {
         _view.gameObject.SetActive(true);
+        _inputActions.UI.Enable();
     }
 
     public void CloseMenu()
     {
         _view.gameObject.SetActive(false);
+        _inputActions.UI.Disable();
         OnMenuClose?.Invoke();
     }
 

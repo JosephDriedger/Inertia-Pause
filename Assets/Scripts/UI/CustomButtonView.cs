@@ -34,6 +34,7 @@ public class CustomButtonView : MonoBehaviour,
     public virtual void OnSelect(BaseEventData eventData)
     {
         _text.color = _highlightColor;
+        OnHover?.Invoke(_hint);
     }
 
     public virtual void OnDeselect(BaseEventData eventData)

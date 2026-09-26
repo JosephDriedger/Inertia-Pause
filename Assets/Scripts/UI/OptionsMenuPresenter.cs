@@ -20,7 +20,7 @@ public class OptionsMenuPresenter : MonoBehaviour
 
     private const string OPTION_TRUE_TEXT = "On";
     private const string OPTION_FALSE_TEXT = "Off";
-    private const string FOV_FORMAT = "{0}°";
+    private const string FOV_FORMAT = "{0}Â°";
     private const string UNLIMITED_FRAMERATE_TEXT = "Unlimited";
     private const string DEFAULT_SCENARIO_NAME = "Inertia Pause";
 
@@ -29,6 +29,10 @@ public class OptionsMenuPresenter : MonoBehaviour
     private bool _isSettingMusicVolume = false;
 
     private PlayerActions _inputActions;
+    private MenuFocus _focus;
+
+    // The option button whose foldout is currently open, if any.
+    private CustomOptionButton _openFoldoutButton;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -51,7 +55,20 @@ public class OptionsMenuPresenter : MonoBehaviour
         SetupToggles();
 
         _inputActions = new PlayerActions();
-        _inputActions.UI.Cancel.performed += _ => CloseMenu();
+        _focus = MenuFocus.Attach(_view.gameObject, _view.HorizontalSensitivityButton.Button);
+
+        // Back out of an open foldout before leaving the menu.
+        _inputActions.UI.Cancel.performed += _ =>
+        {
+            if (_openFoldoutButton != null)
+            {
+                CloseFoldoutsAndRestoreFocus();
+            }
+            else
+            {
+                CloseMenu();
+            }
+        };
         _inputActions.UI.Navigate.performed += _ =>
         {
             if (EventSystem.current.currentSelectedGameObject == null)
@@ -86,11 +103,31 @@ public class OptionsMenuPresenter : MonoBehaviour
         {
             CloseFoldouts();
             button.OpenFoldout();
+            _openFoldoutButton = button;
+
+            // Move a gamepad into the foldout so its options can be picked.
+            if (button.Foldout != null)
+            {
+                _focus.Focus(button.Foldout.GetComponentInChildren<Selectable>());
+            }
         });
+    }
+
+    private void CloseFoldoutsAndRestoreFocus()
+    {
+        CustomOptionButton owner = _openFoldoutButton;
+        CloseFoldouts();
+
+        if (owner != null)
+        {
+            _focus.Focus(owner.Button);
+        }
     }
 
     private void CloseFoldouts()
     {
+        _openFoldoutButton = null;
+
         _view.HorizontalSensitivityButton.CloseFoldout();
         _view.VerticalSensitivityButton.CloseFoldout();
         _view.FOVButton.CloseFoldout();
@@ -153,7 +190,7 @@ public class OptionsMenuPresenter : MonoBehaviour
             Button sensitivityButton = _view.SensitivityOptions[index];
             sensitivityButton.onClick.AddListener(() => {
                 ChangeSensitivity(index + 1);
-                CloseFoldouts();
+                CloseFoldoutsAndRestoreFocus();
             });
         }
 
@@ -164,7 +201,7 @@ public class OptionsMenuPresenter : MonoBehaviour
             Button fovButton = _view.FOVOptions[index];
             fovButton.onClick.AddListener(() => {
                 ChangeFieldOfView(index);
-                CloseFoldouts();
+                CloseFoldoutsAndRestoreFocus();
             });
         }
 
@@ -175,7 +212,7 @@ public class OptionsMenuPresenter : MonoBehaviour
             Button framerateButton = _view.FramerateOptions[index];
             framerateButton.onClick.AddListener(() => {
                 ChangeFramerate(index);
-                CloseFoldouts();
+                CloseFoldoutsAndRestoreFocus();
             });
         }
 
@@ -187,7 +224,7 @@ public class OptionsMenuPresenter : MonoBehaviour
             volumeButton.onClick.AddListener(() =>
             {
                 ChangeVolume(index);
-                CloseFoldouts();
+                CloseFoldoutsAndRestoreFocus();
             });
         }
     }

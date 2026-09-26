@@ -31,10 +31,28 @@ public class TutorialPanelPresenter : MonoBehaviour
 
         _playerInteractModel.OnTutorialOpen += tutorial => ShowTutorial(tutorial);
 
+        // Tutorial text can reference controls (e.g. "{Ingame/ContextualHelp}"), which depend on the device in use.
+        InputDeviceMonitor.OnSchemeChanged += OnSchemeChanged;
+
         // UI
+        MenuFocus.Attach(_view.gameObject, _view.NextPageButton, _view.StartScenarioButton, _view.BackButton);
+
         _inputActions = new PlayerActions();
         _inputActions.UI.Cancel.performed += _ => OnBackClicked();
         _inputActions.Ingame.ContextualHelp.performed += _ => OnBackClicked();
+    }
+
+    private void OnDestroy()
+    {
+        InputDeviceMonitor.OnSchemeChanged -= OnSchemeChanged;
+    }
+
+    private void OnSchemeChanged(ControlScheme _)
+    {
+        if (_currentTutorial != null)
+        {
+            DisplayContentText();
+        }
     }
 
     public void OpenMenu()
@@ -95,7 +113,7 @@ public class TutorialPanelPresenter : MonoBehaviour
     private void DisplayPage(int index)
     {
         _currentPageIndex = index;
-        _view.ContentText.text = _currentTutorial.Pages[index].Content;
+        DisplayContentText();
         _view.ContentImage.sprite = _currentTutorial.Pages[index].Image;
 
         bool isFirstPage = index == 0;
@@ -119,6 +137,11 @@ public class TutorialPanelPresenter : MonoBehaviour
         {
             _view.PageText.text = string.Empty;
         }
+    }
+
+    private void DisplayContentText()
+    {
+        _view.ContentText.text = ControlPromptLabels.ReplaceTokens(_currentTutorial.Pages[_currentPageIndex].Content);
     }
 
     private void OnPrevClicked()

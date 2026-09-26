@@ -46,6 +46,9 @@ public class ResultMenuPresenter : MonoBehaviour
         _reviewPresenter.OnMenuClose += OpenMenu;
         _gameManager.OnLevelComplete += OnLevelComplete;
 
+        // Which buttons are shown depends on the result, so pick the first one that is.
+        MenuFocus.Attach(gameObject, _view.NextButton.Button, _view.ReviewButton.Button, _view.RewindButton.Button);
+
         _view.DescriptionText.text = string.Empty;
 
         CloseMenu();

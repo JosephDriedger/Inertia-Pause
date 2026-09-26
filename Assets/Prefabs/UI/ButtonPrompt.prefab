@@ -501,6 +501,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 494598218825495645}
+  - component: {fileID: 6120347759264105001}
   m_Layer: 5
   m_Name: ButtonPrompt
   m_TagString: Untagged
@@ -816,3 +817,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6120347759264105001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7612257084874965257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3a7d94e5c1f48a2960e7d2c81f5a3b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _actionPath: 
+  _keyCap: {fileID: 8456545401810482413}
+  _keyCapText: {fileID: 8800576670886779681}
+  _mouseIcons: {fileID: 4456912177295737279}
